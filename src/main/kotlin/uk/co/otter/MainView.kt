@@ -25,6 +25,8 @@ val Input_Drivers = FXCollections.observableArrayList("Camera_1","Camera_2","Cam
 
 val Source_Drivers = FXCollections.observableArrayList("Camera_1","Camera_2","Camera_3","Camera_4","ON")
 
+val LDI_names = FXCollections.observableArrayList("405 nm", "445 nm", "470 nm", "520 nm", "528 nm", "555 nm","640 nm" )
+
 var otter : Otter? = null
 val port_list = listOf(*Otter.getPorts()).asObservable()
 val port = SimpleStringProperty()
@@ -117,18 +119,18 @@ class Channel(ID: Int, name: String, ChannelPeriod: Int, Start_time: Int, Length
 
 class ChannelEditor : View("Channel Editor") {
     override val root = BorderPane()
-    val Channels = listOf(Channel(1, "Channel 1", 8, 1, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(2, "Channel 2", 8, 2, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(3, "Channel 3", 6, 3, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(4, "Channel 4", 8, 4, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(5, "Channel 5", 6, 5, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(6, "Channel 6", 8, 6, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(7, "Channel 7", 6, 7, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(8, "Channel 8", 8, 8, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(9, "Channel 9", 8, 8, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(10, "Channel 10", 8, 8, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(11, "Channel 11", 8, 8, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(12, "Channel 12", 6, 0, 1, Input_Drivers[0], Source_Drivers[0],1,true)).asObservable()
+    val Channels = listOf(Channel(1, "Channel 1", 7, 1, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(2, "Channel 2", 7, 2, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(3, "Channel 3", 7, 3, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(4, "Channel 4", 7, 4, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(5, "Channel 5", 7, 5, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(6, "Channel 6", 7, 6, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(7, "Channel 7", 7, 7, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(8, "Channel 8", 7, 8, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(9, "Channel 9", 7, 9, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(10, "Channel 10", 7, 10, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(11, "Channel 11", 7, 11, 1, Input_Drivers[0], Source_Drivers[0],0,true),
+        Channel(12, "Channel 12", 7, 12, 1, Input_Drivers[0], Source_Drivers[0],0,true)).asObservable()
 
 
     val model = ChannelnModel(Channels[0])
@@ -145,7 +147,7 @@ class ChannelEditor : View("Channel Editor") {
                     column("Length", Channel::LengthProperty)
                     column("Input", Channel::InputProperty)
                     column("Source AND",Channel::SourceProperty)
-                    column("Divider", Channel::DividerProperty)
+//                    column("Divider", Channel::DividerProperty)
                     column("Enable", Channel::EnableProperty).useCheckbox()
                     // Update inside the view model on selection change
                     model.rebindOnChange(this) { selectedChannel ->
@@ -157,35 +159,50 @@ class ChannelEditor : View("Channel Editor") {
             top {
                 form {
                         fieldset("Interaction") {
+                            vbox(3){
                             hbox(3) {
-                            button("Set three LEDs") {
-                                action {
-                                    println("Set LEDs")
-                                    Channels[0].nameProperty.set("Blue")
-                                    Channels[1].nameProperty.set("Green")
-                                    Channels[2].nameProperty.set("Red")
+                                button("Set three LEDs") {
+                                    action {
+                                        println("Set LEDs")
+                                        Channels[0].nameProperty.set("Blue")
+                                        Channels[1].nameProperty.set("Green")
+                                        Channels[2].nameProperty.set("Red")
 
-                                    Channels[0].PeriodProperty.set(3)
-                                    Channels[1].PeriodProperty.set(3)
-                                    Channels[2].PeriodProperty.set(3)
+                                        Channels[0].PeriodProperty.set(3)
+                                        Channels[1].PeriodProperty.set(3)
+                                        Channels[2].PeriodProperty.set(3)
 
-                                    Channels.take(3).map { it.LengthProperty.set(1) }
-                                    Channels.take(12).map { it.EnableProperty.set(false) }
-                                    Channels.take(3).map { it.EnableProperty.set(true) }
+                                        Channels.take(3).map { it.LengthProperty.set(1) }
+                                        Channels.take(12).map { it.EnableProperty.set(false) }
+                                        Channels.take(3).map { it.EnableProperty.set(true) }
+                                    }
                                 }
-                            }
-                            button("Save to File") {
-                                //enableWhen(model.dirty)
-                                action {
-                                    savetofile()
+                                button("Set LDI Names") {
+                                    action {
+                                        Channels[0].nameProperty.set(LDI_names[0])
+                                        Channels[1].nameProperty.set(LDI_names[1])
+                                        Channels[2].nameProperty.set(LDI_names[2])
+                                        Channels[3].nameProperty.set(LDI_names[3])
+                                        Channels[4].nameProperty.set(LDI_names[4])
+                                        Channels[5].nameProperty.set(LDI_names[5])
+                                        Channels[6].nameProperty.set(LDI_names[6])
+                                    }
                                 }
-                            }
+                                button("Save to File") {
+                                    //enableWhen(model.dirty)
+                                    action {
+                                        savetofile()
+                                    }
+                                }
                                 button("Load from File") {
                                     //enableWhen(model.dirty)
                                     action {
                                         loadFromFile()
                                     }
                                 }
+                            }
+                                vbox(3){
+                                    hbox(3){
                                 button("Write to Otter") {
                                     //    enableWhen(model.dirty)
                                     action {
@@ -193,18 +210,18 @@ class ChannelEditor : View("Channel Editor") {
                                         writetodevice()
                                     }
                                 }
-                                button("Start"){
-                                    action{
+                                button("Start") {
+                                    action {
                                         otter?.send(Command.Start)
                                     }
                                 }
-                                button("Stop"){
-                                    action{
+                                button("Stop") {
+                                    action {
                                         otter?.send(Command.Stop)
                                     }
                                 }
-                                button("Pause"){
-                                    action{
+                                button("Pause") {
+                                    action {
                                         otter?.send(Command.Pause)
                                     }
                                 }
@@ -214,14 +231,17 @@ class ChannelEditor : View("Channel Editor") {
                                         otter?.close()
                                         try {
                                             if (newPort != null) otter = Otter(newPort)
-                                        } catch (e : OtterException) {
-                                            alert(Alert.AlertType.ERROR, "Failed to connect to serial port!",
-                                                e.message, ButtonType.OK)
+                                        } catch (e: OtterException) {
+                                            alert(
+                                                Alert.AlertType.ERROR, "Failed to connect to serial port!",
+                                                e.message, ButtonType.OK
+                                            )
 
                                         }
                                     }
                                     text = "Port List"
                                 }
+                            }}
                         }
                     }
                 }
@@ -251,12 +271,10 @@ class ChannelEditor : View("Channel Editor") {
                             combobox(model.Source_add, Source_Drivers)
                             text = "Source Channel"
                         }
-                        field("Divider") {
-                            textfield(model.Divider)
-                        }
-//                        checkbox("Enable",booleanProperty){
-//                            action{model.Enable}
+//                        field("Divider") {
+//                            textfield(model.Divider)
 //                        }
+
 
                         ///////
 

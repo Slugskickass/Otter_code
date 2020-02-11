@@ -40,12 +40,25 @@ class Otter (port : String) : AutoCloseable {
                         println("Unexpected response to version query!")
                     }
 
-                    ott.send(Command.Write(0, Parameter.Period, Value.Int(10)))
+                    val commands = listOf(
+                        Command.Write(0, Parameter.Period, Value.Int(2)),
+                        Command.Write(0, Parameter.Start, Value.Int(0)),
+                        Command.Write(0, Parameter.End, Value.Int(0)),
 
-                    when (val response = ott.send(Command.Read(0, Parameter.Period))) {
-                        is Response.Value -> println("Read ok! Response ${(response.value as Value.Int).i}")
-                        else -> println("Read failed!")
-                    }
+                        Command.Write(1, Parameter.Period, Value.Int(2)),
+                        Command.Write(1, Parameter.Start, Value.Int(1)),
+                        Command.Write(1, Parameter.End, Value.Int(1)),
+
+                        Command.Write(2, Parameter.Period, Value.Int(2)),
+                        Command.Write(2, Parameter.Start, Value.Int(2)),
+                        Command.Write(2, Parameter.End, Value.Int(2))
+                    ) + (3..11).map { Command.Write(it.toByte(), Parameter.Config, Value.Config(CountSrc.Exposure1, 1, AndSrc.Disable, false)) }
+
+                    commands.map { ott.send(it) }
+
+                    ott.send(Command.Start)
+                    Thread.sleep(5000)
+                    ott.send(Command.Stop)
                 }
             } catch (e : OtterException) {
                 e.printStackTrace()

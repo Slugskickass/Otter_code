@@ -4,6 +4,8 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
+import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 //import sun.jvm.hotspot.oops.IntField
@@ -23,6 +25,7 @@ val Input_Drivers = FXCollections.observableArrayList("Camera_1","Camera_2","Cam
 
 val Source_Drivers = FXCollections.observableArrayList("Camera_1","Camera_2","Camera_3","Camera_4","ON")
 
+var otter : Otter? = null
 val port_list = listOf(*Otter.getPorts()).asObservable()
 val port = SimpleStringProperty()
 
@@ -123,7 +126,7 @@ class ChannelEditor : View("Channel Editor") {
             top {
                 form {
                         fieldset("Interaction") {
-                            hbox {
+                            hbox(3) {
                             button("Set three LEDs") {
                                 action {
                                     println("Set LEDs")
@@ -175,7 +178,17 @@ class ChannelEditor : View("Channel Editor") {
                                     }
                                 }
                                 field("Ports") {
-                                    combobox(port, port_list)
+                                    val cmbxPort = combobox(port, port_list)
+                                    port.onChange { newPort ->
+                                        otter?.close()
+                                        try {
+                                            if (newPort != null) otter = Otter(newPort)
+                                        } catch (e : OtterException) {
+                                            alert(Alert.AlertType.ERROR, "Failed to connect to serial port!",
+                                                e.message, ButtonType.OK)
+
+                                        }
+                                    }
                                     text = "Port List"
                                 }
                         }

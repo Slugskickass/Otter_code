@@ -10,7 +10,6 @@ import javafx.stage.FileChooser
 import tornadofx.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import java.io.File
 
 //class Channel_data(val Channel: Int,
 //                   val ChannelPeriod: Int,
@@ -24,7 +23,7 @@ val Input_Drivers = FXCollections.observableArrayList("Camera_1","Camera_2","Cam
 
 val Source_Drivers = FXCollections.observableArrayList("Camera_1","Camera_2","Camera_3","Camera_4","ON")
 
-val port_list = FXCollections.emptyObservableList<String>()
+val port_list = listOf(*Otter.getPorts()).asObservable()
 val port = SimpleStringProperty()
 
 @Serializable

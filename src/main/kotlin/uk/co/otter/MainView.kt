@@ -10,7 +10,6 @@ import javafx.stage.FileChooser
 import tornadofx.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import java.io.File
 
 //class Channel_data(val Channel: Int,
 //                   val ChannelPeriod: Int,
@@ -54,7 +53,7 @@ class Channel(ID: Int, name: String, ChannelPeriod: Int, Start_time: Int, Length
 
     val EnableProperty =SimpleBooleanProperty(this, "Enable", Enable)
 
-    fun serialisable() =
+    fun serializable() =
         SerializableChannel(IDProperty.value,
             nameProperty.value,
             PeriodProperty.value,
@@ -240,7 +239,7 @@ class ChannelEditor : View("Channel Editor") {
         FileChooser().showSaveDialog(null)
             ?.printWriter()?.use { f ->
                 f.print(Json(JsonConfiguration.Stable)
-                    .stringify(SerializableChannel.serializer().list, Channels.map { it.serialisable() }))
+                    .stringify(SerializableChannel.serializer().list, Channels.map { it.serializable() }))
             }
     }
 

@@ -12,7 +12,8 @@ public enum class AndSrc {
     Exposure2,
     Exposure3,
     Exposure4,
-    None
+    None,
+    Disable
 }
 
 public enum class CountSrc {
@@ -25,13 +26,16 @@ public enum class CountSrc {
 
 public sealed class Value {
     data class Int(val i : kotlin.Int) : Value()
-    data class Config(val inp_src : CountSrc, val clk_div : Short, val and_src : AndSrc, val continuous : Boolean)
+    data class Config(val inp_src : CountSrc, val clk_div : Short, val and_src : AndSrc, val continuous : Boolean) : Value()
 }
 
 public sealed class Command {
     data class Write(val counter_id : Byte, val parameter : Parameter, val value : Value) : Command()
     data class Read(val counter_id : Byte, val parameter : Parameter) : Command()
     object Version : Command()
+    object Start : Command()
+    object Stop : Command()
+    object Pause : Command()
 }
 
 public sealed class Response {

@@ -23,6 +23,9 @@ val Input_Drivers = FXCollections.observableArrayList("Camera_1","Camera_2","Cam
 
 val Source_Drivers = FXCollections.observableArrayList("Camera_1","Camera_2","Camera_3","Camera_4","ON")
 
+val port_list = listOf(*Otter.getPorts()).asObservable()
+val port = SimpleStringProperty()
+
 @Serializable
 data class SerializableChannel(val ID: Int, val name: String, val ChannelPeriod: Int, val Start_time: Int, val Length_on: Int, val Input_chan: String, val Source_add: String, val Divider: Int, val Enable: Boolean)
 
@@ -85,7 +88,7 @@ class ChannelEditor : View("Channel Editor") {
         Channel(3, "Channel 3", 6, 3, 1, Input_Drivers[0], Source_Drivers[0],1,true),
         Channel(4, "Channel 4", 8, 4, 1, Input_Drivers[0], Source_Drivers[0],1,true),
         Channel(5, "Channel 5", 6, 5, 1, Input_Drivers[0], Source_Drivers[0],1,true),
-        Channel(6, "Channel 6", 8, 6, 1, Input_Drivers[0], Source_Drivers[0],1,false),
+        Channel(6, "Channel 6", 8, 6, 1, Input_Drivers[0], Source_Drivers[0],1,true),
         Channel(7, "Channel 7", 6, 7, 1, Input_Drivers[0], Source_Drivers[0],1,true),
         Channel(8, "Channel 8", 8, 8, 1, Input_Drivers[0], Source_Drivers[0],1,true),
         Channel(9, "Channel 9", 8, 8, 1, Input_Drivers[0], Source_Drivers[0],1,true),
@@ -110,12 +113,76 @@ class ChannelEditor : View("Channel Editor") {
                     column("Source AND",Channel::SourceProperty)
                     column("Divider", Channel::DividerProperty)
                     column("Enable", Channel::EnableProperty).useCheckbox()
-                    // Update the person inside the view model on selection change
+                    // Update inside the view model on selection change
                     model.rebindOnChange(this) { selectedChannel ->
                         item = selectedChannel ?: Channels[0]
                     }
                 }
             }
+
+            top {
+                form {
+                        fieldset("Interaction") {
+                            hbox {
+                            button("Set three LEDs") {
+                                action {
+                                    println("Set LEDs")
+                                    Channels[0].nameProperty.set("Blue")
+                                    Channels[1].nameProperty.set("Green")
+                                    Channels[2].nameProperty.set("Red")
+
+                                    Channels[0].PeriodProperty.set(3)
+                                    Channels[1].PeriodProperty.set(3)
+                                    Channels[2].PeriodProperty.set(3)
+
+                                    Channels.take(3).map { it.LengthProperty.set(1) }
+                                    Channels.take(12).map { it.EnableProperty.set(false) }
+                                    Channels.take(3).map { it.EnableProperty.set(true) }
+                                }
+                            }
+                            button("Save to File") {
+                                //enableWhen(model.dirty)
+                                action {
+                                    savetofile()
+                                }
+                            }
+                                button("Load from File") {
+                                    //enableWhen(model.dirty)
+                                    action {
+                                        loadFromFile()
+                                    }
+                                }
+                                button("Write to Otter") {
+                                    //    enableWhen(model.dirty)
+                                    action {
+                                        println("out")
+                                        writetodevice()
+                                    }
+                                }
+                                button("Start"){
+                                    action{
+                                        println("test")
+                                    }
+                                }
+                                button("Stop"){
+                                    action{
+                                        println("test")
+                                    }
+                                }
+                                button("Pause"){
+                                    action{
+                                        println("test")
+                                    }
+                                }
+                                field("Ports") {
+                                    combobox(port, port_list)
+                                    text = "Port List"
+                                }
+                        }
+                    }
+                }
+            }
+
 
             right {
                 form {
@@ -169,46 +236,6 @@ class ChannelEditor : View("Channel Editor") {
                             enableWhen(model.dirty)
                             action {
                                 update()
-                            }
-                        }
-                        button("Save to File") {
-                            //enableWhen(model.dirty)
-                            action {
-                                savetofile()
-                            }
-                        }
-
-                        button("Load from File") {
-                            //enableWhen(model.dirty)
-                            action {
-                                loadFromFile()
-                            }
-                        }
-
-
-
-                        button("Write to Otter") {
-                        //    enableWhen(model.dirty)
-                            action {
-                               println("out")
-                                writetodevice()
-                            }
-                        }
-                        button("Set three LEDs") {
-                            action {
-                                println("Set LEDs")
-                                Channels[0].nameProperty.set("Blue")
-                                Channels[1].nameProperty.set("Green")
-                                Channels[2].nameProperty.set("Red")
-
-                                Channels[0].PeriodProperty.set(3)
-                                Channels[1].PeriodProperty.set(3)
-                                Channels[2].PeriodProperty.set(3)
-
-                                Channels.take(3).map { it.LengthProperty.set(1) }
-
-                                Channels.take(12).map { it.EnableProperty.set(false) }
-                                Channels.take(3).map { it.EnableProperty.set(true) }
                             }
                         }
 
@@ -292,9 +319,6 @@ class ChannelnModel(channel: Channel) : ItemViewModel<Channel>(channel) {
 }
 
 class MyApp: App(ChannelEditor::class)
-
-
-
 
 fun main(args : Array<String>) {
  //   Otter.getPorts().forEach(::println)

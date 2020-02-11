@@ -82,6 +82,37 @@ class Channel(ID: Int, name: String, ChannelPeriod: Int, Start_time: Int, Length
         DividerProperty.set(sc.Divider)
         EnableProperty.set(sc.Enable)
     }
+
+    fun commands() : List<Command.Write> {
+        val channel = (IDProperty.get() - 1).toByte()
+        val inputChannel =
+            when (InputProperty.get()) {
+                "Camera_1" -> CountSrc.Exposure1
+                "Camera_2" -> CountSrc.Exposure2
+                "Camera_3" -> CountSrc.Exposure3
+                "Camera_4" -> CountSrc.Exposure4
+                else -> CountSrc.Internal
+            }
+
+        val andSrc =
+            if (EnableProperty.get())
+                when (SourceProperty.get()) {
+                    "Camera_1" -> AndSrc.Exposure1
+                    "Camera_2" -> AndSrc.Exposure1
+                    "Camera_3" -> AndSrc.Exposure1
+                    "Camera_4" -> AndSrc.Exposure1
+                    else -> AndSrc.None
+                }
+            else AndSrc.Disable
+
+
+        return listOf(
+            Command.Write(channel, Parameter.Period, Value.Int(PeriodProperty.get())),
+            Command.Write(channel, Parameter.Start, Value.Int(StartProperty.get())),
+            Command.Write(channel, Parameter.End, Value.Int(LengthProperty.get())),
+            Command.Write(channel, Parameter.Config, Value.Config(inputChannel, /*DividerProperty.get().toShort()*/0, andSrc, false))
+        )
+    }
 }
 
 class ChannelEditor : View("Channel Editor") {
@@ -164,17 +195,17 @@ class ChannelEditor : View("Channel Editor") {
                                 }
                                 button("Start"){
                                     action{
-                                        println("test")
+                                        otter?.send(Command.Start)
                                     }
                                 }
                                 button("Stop"){
                                     action{
-                                        println("test")
+                                        otter?.send(Command.Stop)
                                     }
                                 }
                                 button("Pause"){
                                     action{
-                                        println("test")
+                                        otter?.send(Command.Pause)
                                     }
                                 }
                                 field("Ports") {
@@ -295,26 +326,20 @@ class ChannelEditor : View("Channel Editor") {
 
 
     private fun writetodevice() {
-
         try {
-            Otter("/dev/tty.usbserial-210328AB77681").use { /*otter ->
-                val id = model.ID.value.toByte()
-                val commands = listOf(
-                    Command.Write(id, Parameter.Period, Value.Int(model.ChannelPeriod.value.toInt())),
-                    Command.Write(id, Parameter.Start, Value.Int(model.Start_time.value.toInt())),
-                    Command.Write(id, Parameter.End, Value.Int(model.Length_on.value.toInt())))
-
-
-                    commands.map { cmd -> otter.send(cmd) }*/
-
+            otter?.let { ott ->
+                Channels
+                    .flatMap { it.commands() }
+                    .forEach {
+                        println(it)
+                        ott.send(it)
+                        Thread.sleep(100)
+                    }
             }
         } catch (e : OtterException) {
             e.printStackTrace()
         }
-        println(model.name.value)
-        println(model.ChannelPeriod.value)
-        println(model.Length_on.value)
-        println(model.Start_time.value)
+        alert(Alert.AlertType.INFORMATION, "Done", "Done", ButtonType.OK)
     }
 }
 
